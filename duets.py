@@ -15,7 +15,6 @@ AUDIO_EXTS = (".mp3",)
 
 
 def render_brand_header(logo_width_px: int = 200):
-    """Render the brand header (logo left, text right). Uses logo_alt.png in dark mode when available."""
     left, middle, right = st.columns([1, 1, 1], vertical_alignment="center")
 
     with left:
@@ -26,20 +25,20 @@ def render_brand_header(logo_width_px: int = 200):
             light_uri = _img_to_data_uri(logo_path)
             dark_uri = _img_to_data_uri(logo_alt_path) if logo_alt_path.exists() else light_uri
 
-            html = """
-<style>
-  .dw-logo-light {{ display: inline-block; }}
-  .dw-logo-dark  {{ display: none; }}
+            html = textwrap.dedent("""
+                <style>
+                  .dw-logo-light {{ display: inline-block; }}
+                  .dw-logo-dark  {{ display: none; }}
 
-  @media (prefers-color-scheme: dark) {{
-    .dw-logo-light {{ display: none; }}
-    .dw-logo-dark  {{ display: inline-block; }}
-  }}
-</style>
+                  @media (prefers-color-scheme: dark) {{
+                    .dw-logo-light {{ display: none; }}
+                    .dw-logo-dark  {{ display: inline-block; }}
+                  }}
+                </style>
 
-<img class="dw-logo-light" src="{light_uri}" width="{w}" />
-<img class="dw-logo-dark"  src="{dark_uri}"  width="{w}" />
-""".format(light_uri=light_uri, dark_uri=dark_uri, w=int(logo_width_px))
+                <img class="dw-logo-light" src="{light_uri}" width="{w}" />
+                <img class="dw-logo-dark"  src="{dark_uri}"  width="{w}" />
+            """).format(light_uri=light_uri, dark_uri=dark_uri, w=int(logo_width_px))
 
             st.markdown(html, unsafe_allow_html=True)
 
@@ -47,7 +46,6 @@ def render_brand_header(logo_width_px: int = 200):
         st.markdown('Created by David Winter  \n("The Narrator")  \nhttps://www.thenarrator.co.uk')
 
     st.markdown("---")
-
 
 def _clean_spaces(s: str) -> str:
     return re.sub(r"\s+", " ", s).strip()
