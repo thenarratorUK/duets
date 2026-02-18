@@ -7,7 +7,7 @@ import textwrap
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
-from st_theme import st_theme
+from streamlit_theme import st_theme
 
 import streamlit as st
 
