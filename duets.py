@@ -3,16 +3,19 @@ from __future__ import annotations
 
 import re
 import base64
+import textwrap
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
 
 import streamlit as st
 
-
+def _img_to_data_uri(path: Path) -> str:
+    data = path.read_bytes()
+    b64 = base64.b64encode(data).decode("ascii")
+    return "data:image/png;base64," + b64
 SAMPLES_DIR = Path(__file__).parent / "Samples"
 AUDIO_EXTS = (".mp3",)
-
 
 def render_brand_header(logo_width_px: int = 200):
     left, middle, right = st.columns([1, 1, 1], vertical_alignment="center")
