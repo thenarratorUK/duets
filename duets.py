@@ -7,6 +7,7 @@ import textwrap
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
+from st_theme import st_theme
 
 import streamlit as st
 
@@ -17,7 +18,9 @@ def _img_to_data_uri(path: Path) -> str:
 SAMPLES_DIR = Path(__file__).parent / "Samples"
 AUDIO_EXTS = (".mp3",)
 
+
 def render_brand_header(logo_width_px: int = 200):
+    """Render the brand header (logo left, text right). Uses logo_alt.png when Streamlit theme is dark."""
     left, middle, right = st.columns([1, 1, 1], vertical_alignment="center")
 
     with left:
@@ -25,25 +28,12 @@ def render_brand_header(logo_width_px: int = 200):
         logo_alt_path = Path(__file__).with_name("logo_alt.png")
 
         if logo_path.exists():
-            light_uri = _img_to_data_uri(logo_path)
-            dark_uri = _img_to_data_uri(logo_alt_path) if logo_alt_path.exists() else light_uri
+            theme = st_theme() or {}
+            base = (theme.get("base") or "").lower()
 
-            html = textwrap.dedent("""
-                <style>
-                  .dw-logo-light {{ display: inline-block; }}
-                  .dw-logo-dark  {{ display: none; }}
-
-                  @media (prefers-color-scheme: dark) {{
-                    .dw-logo-light {{ display: none; }}
-                    .dw-logo-dark  {{ display: inline-block; }}
-                  }}
-                </style>
-
-                <img class="dw-logo-light" src="{light_uri}" width="{w}" />
-                <img class="dw-logo-dark"  src="{dark_uri}"  width="{w}" />
-            """).format(light_uri=light_uri, dark_uri=dark_uri, w=int(logo_width_px))
-
-            st.markdown(html, unsafe_allow_html=True)
+            # If Streamlit is in dark mode and alt logo exists, use it; otherwise use default.
+            chosen = logo_alt_path if (base == "dark" and logo_alt_path.exists()) else logo_path
+            st.image(str(chosen), width=logo_width_px)
 
     with right:
         st.markdown('Created by David Winter  \n("The Narrator")  \nhttps://www.thenarrator.co.uk')
