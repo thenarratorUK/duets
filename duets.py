@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import re
+import base64
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Dict, List, Optional, Set, Tuple
@@ -14,13 +15,33 @@ AUDIO_EXTS = (".mp3",)
 
 
 def render_brand_header(logo_width_px: int = 200):
-    """Render the brand header (logo left, text right) if logo.png is present beside this script."""
+    """Render the brand header (logo left, text right). Uses logo_alt.png in dark mode when available."""
     left, middle, right = st.columns([1, 1, 1], vertical_alignment="center")
 
     with left:
         logo_path = Path(__file__).with_name("logo.png")
+        logo_alt_path = Path(__file__).with_name("logo_alt.png")
+
         if logo_path.exists():
-            st.image(str(logo_path), width=logo_width_px)
+            light_uri = _img_to_data_uri(logo_path)
+            dark_uri = _img_to_data_uri(logo_alt_path) if logo_alt_path.exists() else light_uri
+
+            html = """
+<style>
+  .dw-logo-light {{ display: inline-block; }}
+  .dw-logo-dark  {{ display: none; }}
+
+  @media (prefers-color-scheme: dark) {{
+    .dw-logo-light {{ display: none; }}
+    .dw-logo-dark  {{ display: inline-block; }}
+  }}
+</style>
+
+<img class="dw-logo-light" src="{light_uri}" width="{w}" />
+<img class="dw-logo-dark"  src="{dark_uri}"  width="{w}" />
+""".format(light_uri=light_uri, dark_uri=dark_uri, w=int(logo_width_px))
+
+            st.markdown(html, unsafe_allow_html=True)
 
     with right:
         st.markdown('Created by David Winter  \n("The Narrator")  \nhttps://www.thenarrator.co.uk')
